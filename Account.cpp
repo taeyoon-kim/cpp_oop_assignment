@@ -1,10 +1,11 @@
 /*
- *Banking System Ver 0.1
+ *Banking System Ver 0.3
  *작성자: 김태윤
- *내용: OOP 단계별 프로젝트의 기본 틀 구성
+ *내용: Account 클래스 정의, 객체 포인터 배열 적용
  */
 
-#include<iostream>
+#include <iostream>
+#include <cstring>
 
 using namespace std;
 
@@ -16,14 +17,60 @@ void ShowAllAccount(void);
 
 enum {MAKE = 1, DEPOSIT, WITHDRAW, INQUIRE, EXIT};
 
-typedef struct
+class Account
 {
+private:
 	int ID;
-	char name[20];
+	char * name; //동적할당 수정
 	int balance;
-}Account;
+public:
+	Account(int ID, char * name, int money)
+	{
+		this->ID = ID;
+		this->balance = money;
+		this->name = new char[strlen(name)];
+		strcpy(this->name, name);
+	}
 
-Account accArr[100];
+	Account(const Account& ref)
+	{
+		this->ID = (ref.ID);
+		this->balance = (ref.balance);
+		this->name = new char[strlen(ref.name) + 1];
+		strcpy(this->name, ref.name);
+	}
+
+	int GetaccID() { return ID; }
+
+	void deposit(int money)
+	{
+		balance += money;
+	}
+
+	int withdraw(int money)
+	{
+		if (balance < money)
+			return 0;
+
+		balance -= money;
+		return 1;
+		
+	}
+	
+	void ShowAccInfo()
+	{
+		cout << "계좌ID: " << ID<< endl;
+		cout << "이 름: " << name << endl;
+		cout << "잔 액: " << balance << endl;
+	}
+
+	~Account()
+	{
+		delete[]name;
+	}
+};
+
+Account * accArr[100];
 int accnum = 0;
 
 int main(void)
@@ -73,17 +120,21 @@ void ShowMenu()
 
 void MakeAccout(void)
 {
+	int id;
+	char name[20];
+	int balance;
+
 	cout << "[계좌개설]" << endl;
 
 	cout << "계좌ID: ";
-	cin >> accArr[accnum].ID;
+	cin >> id;
 	cout << "이 름: ";
-	cin >> accArr[accnum].name;
+	cin >> name;
 	cout << "입금액: ";
-	cin >> accArr[accnum].balance;
-
+	cin >> balance;
 	cout << endl;
-	accnum++;
+
+	accArr[accnum++] = new Account(id, name, balance);
 }
 
 void DepositMoney(void)
@@ -100,8 +151,8 @@ void DepositMoney(void)
 
 	for (int i = 0; i < accnum; i++)
 	{
-		if (accArr[i].ID == id) {
-			accArr[i].balance += money;
+		if (accArr[i]->GetaccID() == id) {
+			accArr[i]->deposit(money);
 			cout << "입금완료" << endl << endl;
 			return;
 		}
@@ -124,14 +175,12 @@ void WithdrawMoney(void)
 
 	for (int i = 0; i < accnum; i++)
 	{
-		if (accArr[i].ID == id) {
-			if (accArr[i].balance < money)
+		if (accArr[i]->GetaccID() == id) {
+			if (accArr[i]->withdraw(money) == 0)
 			{
 				cout << "잔액부족" << endl << endl;
 				return;
 			}
-
-			accArr[i].balance -= money;
 			cout << "출금완료" << endl << endl;
 			return;
 		}
@@ -144,8 +193,6 @@ void ShowAllAccount(void)
 {
 	for (int i = 0; i < accnum; i++)
 	{
-		cout << "계좌ID: " << accArr[i].ID << endl;
-		cout << "이 름: " << accArr[i].name << endl;
-		cout << "잔 액: " << accArr[i].balance << endl << endl;
+		accArr[i]->ShowAccInfo();
 	}
 }
