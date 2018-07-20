@@ -1,5 +1,5 @@
 /*
- *Banking System Ver 0.3
+ *Banking System Ver 0.5
  *작성자: 김태윤
  *내용: Account 클래스 정의, 객체 포인터 배열 적용
  */
@@ -8,12 +8,6 @@
 #include <cstring>
 
 using namespace std;
-
-void ShowMenu(void);
-void MakeAccout(void);
-void DepositMoney(void);
-void WithdrawMoney(void);
-void ShowAllAccount(void);
 
 enum {MAKE = 1, DEPOSIT, WITHDRAW, INQUIRE, EXIT};
 
@@ -28,7 +22,7 @@ public:
 	{
 		this->ID = ID;
 		this->balance = money;
-		this->name = new char[strlen(name)];
+		this->name = new char[strlen(name) + 1];
 		strcpy(this->name, name);
 	}
 
@@ -40,7 +34,7 @@ public:
 		strcpy(this->name, ref.name);
 	}
 
-	int GetaccID() { return ID; }
+	int GetaccID() const { return ID; }
 
 	void deposit(int money)
 	{
@@ -57,7 +51,7 @@ public:
 		
 	}
 	
-	void ShowAccInfo()
+	void ShowAccInfo() const
 	{
 		cout << "계좌ID: " << ID<< endl;
 		cout << "이 름: " << name << endl;
@@ -70,45 +64,27 @@ public:
 	}
 };
 
-Account * accArr[100];
-int accnum = 0;
-
-int main(void)
+class AccountHandler
 {
-	int choice;
+private:
+	Account * accArr[100];
+	int accnum;
+public:
+	AccountHandler() : accnum(0) {}
 
-	while (1)
+	void ShowMenu(void) const;
+	void MakeAccout(void);
+	void DepositMoney(void);
+	void WithdrawMoney(void);
+	void ShowAllAccount(void);
+	~AccountHandler() 
 	{
-		ShowMenu();
+		for (int i = 0; i < accnum; i++)
+			delete accArr[i];		
+	};
+};
 
-		cout << "선택: ";
-		cin >> choice;
-		cout << endl;
-
-		switch (choice)
-		{
-		case MAKE:
-			MakeAccout();
-			break;
-		case DEPOSIT:
-			DepositMoney();
-			break;
-		case WITHDRAW:
-			WithdrawMoney();
-			break;
-		case INQUIRE:
-			ShowAllAccount();
-			break;
-		case EXIT:
-			return 0;
-		default:
-			cout << "Illegal selection.." << endl;
-		}
-	}
-	return 0;
-}
-
-void ShowMenu()
+void AccountHandler::ShowMenu(void) const
 {
 	cout << "-----Menu-----" << endl;
 	cout << "1. 계좌개설" << endl;
@@ -118,7 +94,7 @@ void ShowMenu()
 	cout << "5. 프로그램 종료" << endl;
 }
 
-void MakeAccout(void)
+void AccountHandler::MakeAccout(void)
 {
 	int id;
 	char name[20];
@@ -137,7 +113,7 @@ void MakeAccout(void)
 	accArr[accnum++] = new Account(id, name, balance);
 }
 
-void DepositMoney(void)
+void AccountHandler::DepositMoney(void)
 {
 	int id;
 	int money;
@@ -161,7 +137,7 @@ void DepositMoney(void)
 	cout << "유효하지 않은 ID 입니다" << endl << endl;
 }
 
-void WithdrawMoney(void)
+void AccountHandler::WithdrawMoney(void)
 {
 	int id;
 	int money;
@@ -189,10 +165,47 @@ void WithdrawMoney(void)
 	cout << "유효하지 않은 ID 입니다" << endl << endl;
 }
 
-void ShowAllAccount(void)
+void AccountHandler::ShowAllAccount(void)
 {
 	for (int i = 0; i < accnum; i++)
 	{
 		accArr[i]->ShowAccInfo();
+		cout << endl;
 	}
+}
+
+int main(void)
+{
+	AccountHandler manager;
+	int choice;
+
+	while (1)
+	{
+		manager.ShowMenu();
+
+		cout << "선택: ";
+		cin >> choice;
+		cout << endl;
+
+		switch (choice)
+		{
+		case MAKE:
+			manager.MakeAccout();
+			break;
+		case DEPOSIT:
+			manager.DepositMoney();
+			break;
+		case WITHDRAW:
+			manager.WithdrawMoney();
+			break;
+		case INQUIRE:
+			manager.ShowAllAccount();
+			break;
+		case EXIT:
+			return 0;
+		default:
+			cout << "Illegal selection.." << endl;
+		}
+	}
+	return 0;
 }
