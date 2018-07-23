@@ -9,14 +9,17 @@
 #define __NORMAL_ACCOUNT_H__
 
 #include "Account.h"
+#include "string.h"
 
 class NormalAccount : public Account
 {
 private:
 	int interRate;
 public:
-	NormalAccount(int ID, int money, char * name, int rate)
-		:Account(ID, name, money), interRate(rate) { }
+	//NormalAccount(int ID, int money, char * name, int rate)
+	//	:Account(ID, name, money), interRate(rate) { }
+	NormalAccount(int ID, int money, String name, int rate)
+		:Account(ID, name, money),interRate(rate) { }
 
 	virtual void deposit(int money)
 	{
